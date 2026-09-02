@@ -1,40 +1,44 @@
-# VEOCRAFT — AI Video Creation Website
+# VEOCRAFT — AI Video Creation Studio
 
-An AI-first web experience for turning a simple idea into a complete video:
-
-**Idea → Script → Video**
-
-## Included in this starter
-
-- Polished responsive studio UI
-- Idea composer with format, language, tone, and duration controls
-- AI-style script planning flow with hooks, scenes, visuals, and CTA structure
-- Automated production checklist for voice, visuals, captions, music, and editing
-- Rendering/progress experience
-- Clean provider-agnostic architecture for connecting real AI APIs
+Turn one idea into a finished MP4: **Idea → Script → AI visuals → AI voice → captions → render**.
 
 ## Run locally
 
+1. Install Node.js 18+.
+2. Copy `.env.example` to `.env`.
+3. Put your OpenAI API key in `.env`.
+4. Install dependencies:
+
 ```bash
 npm install
-npm run dev
 ```
 
-Then open the local Vite URL.
+5. Start the full app:
 
-## Connect real AI providers
+```bash
+npm run dev:full
+```
 
-The UI is intentionally provider-agnostic. A production backend should expose endpoints similar to:
+6. Open `http://localhost:5173`.
 
-- `POST /api/script` — idea → structured script and scene plan
-- `POST /api/assets` — scene → stock/search/generated image or video assets
-- `POST /api/voice` — script → speech audio + timestamps
-- `POST /api/captions` — transcript/audio → synchronized captions
-- `POST /api/render` — scenes + audio + captions + music → final MP4
-- `GET /api/render/:id` — rendering progress/status
+Vite serves the browser app on port 5173. Express runs the AI/video backend on port 8787 and Vite proxies `/api` and `/generated` automatically.
 
-Recommended production pieces include an LLM for script planning, a web/stock media provider, an image/video generation provider, a TTS provider, and a render worker using FFmpeg or a hosted rendering API.
+## Real generation pipeline
+
+- **Script:** OpenAI Responses API
+- **Visuals:** OpenAI image generation, one scene image per scene
+- **Voice:** OpenAI text-to-speech
+- **Captions:** generated SRT based on scene timing
+- **Video:** FFmpeg creates a 1280×720 MP4 from the generated scenes and voice track
+
+API endpoints:
+
+- `GET /api/health`
+- `POST /api/generate-script`
+- `POST /api/render`
 
 ## Security
 
-Keep all provider API keys server-side. Never place secret keys in `src/` or browser JavaScript. Add `.env` to `.gitignore` before connecting production services.
+Never put an OpenAI API key in frontend JavaScript or commit `.env`. The key belongs only on the server.
+
+The current renderer is a real image-based video MVP. A production tier can add licensed stock footage, generated video clips, music libraries, scene-level animation, persistent jobs, authentication, storage, and cloud rendering.
